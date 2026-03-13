@@ -125,15 +125,25 @@ nano config/config.php
   'overwrite.cli.url' => 'http://192.168.1.38:8181',
 ```
 4. В брауезере перейти: значек пользователя в правом верхнем углу - "Приложения"
+
 4.1. Слева внизу в списке выбрать "Офис и текст". Nextcloud сразу предложит установить переходник на OnlyOffice, соглашаемся.
+
 4.2. Слева вверху "Активные приложения" -- отключаем PDF Viewer, тогда вместо него pdf-файлы будут открываться в OnlyOffice.
+
 5. В брауезере перейти: значек пользователя в правом верхнем углу - "Параметры сервера". Слева внизу -- "ONLYOFFICE"
+
 5.1. Адрес ONLYOFFICE Docs: http://192.168.1.38:8383/
+
 5.2. Секретный ключ (оставьте пустым для отключения): my_super_secret_key_123
+
 5.3. Дополнительные настройки сервера (раскрыть):
+
    5.3.1. Заголовок авторизации (оставьте пустым, чтобы использовать заголовок по умолчанию): Authorization
+   
    5.3.2. Адрес ONLYOFFICE Docs для внутренних запросов сервера: http://documentserver/
+   
    5.3.3. Адрес сервера для внутренних запросов ONLYOFFICE Docs: http://195.133.13.56:8181/
+   
 5.4. "Сохранить"
 
 ## Проверка
@@ -151,38 +161,62 @@ nano config/config.php
 ### Сервер AppAPI
 1. В брауезере перейти: значек пользователя в правом верхнем углу - "Параметры сервера". Слева внизу -- "AppAPI"
 2. "+ Register daemon"
+
 Register a new deploy daemon
+
 Имя: docker_socket_proxy
+
 Протокол: http
+
 Имя или адрес сервера: docker-socket-proxy:2375
+
 Варианты развертывания
+
 Сеть докеров: nextcloud_ai-net
+
 Адрес сервера Nextcloud: http://nextcloud
+
 Поддержка GPU: false
+
 Вычислительное устройство: CPU
+
 Лимит памяти: Неограничено
+
 CPU limit: Неограничено
 
 ### Приложения для использования LLM из магазина приложений Nextcloud Hub
 Возможно установить после конфигурации Сервер AppAPI
-1. В меню: 
+1. В меню:
+
 -> Приложения
+
 -> AI
+
 -> в поисковой строке "context" - должно найтись "Результаты из других категорий" - "Context Chat Backend"
+
  -> Развернуть и включить. 
+ 
 Займет много времени, потому что будет качаться ghcr.io/nextcloud/context_chat_backend:5.3.0. 
+
 Чтобы отслеживать реальный статус после запуска из gui, параллельно из командной строки можно запустить 
 ```bash
 docker pull ghcr.io/nextcloud/context_chat_backend:5.3.0
 ```
 -- будет отображать скачивание. 
-После скачивания будет показано "0 % Инициализация" -- пора качать (именно в таком порядке, см https://apps.nextcloud.com/apps/context_chat_backend):
+После скачивания будет показано "0 % Инициализация" -- пора качать (именно в таком порядке, см https://apps.nextcloud.com/apps/context_chat_backend).
+
 2. Ассистенты для поиска по всему Nextcloud:
+   
 -> Приложения 
+
 -> AI:
+
 Nextcloud Assistant Context Chat
+
 Nextcloud Context Agent
+
 Nextcloud Assistant
+
 После установки может потребоваться
 ```bash
 docker restart nc_app_context_chat_backend
@@ -254,6 +288,7 @@ docker logs -f nc_app_context_chat_backend
 3. Приложения - Поиск - По данным из:
 
 https://apps.nextcloud.com/apps/llm2
+
 https://apps.nextcloud.com/apps/integration_openai
 
 # License
