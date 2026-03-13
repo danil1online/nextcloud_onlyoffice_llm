@@ -1,0 +1,110 @@
+version: "3.9"
+
+networks:
+  ai-net:
+    driver: bridge
+
+services:
+  # -----------------------------
+  # Redis для Nextcloud
+  # -----------------------------
+  redis:
+    image: redis:alpine
+    container_name: nextcloud_redis
+    restart: always
+    networks:
+      - ai-net
+
+  # -----------------------------
+  # PostgreSQL для Nextcloud
+  # -----------------------------
+  nextcloud-postgres:
+    image: postgres:16
+    container_name: nextcloud-postgres
+    restart: always
+    networks:
+      - ai-net
+    environment:
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: ncuser
+      POSTGRES_PASSWORD: ncpass
+    volumes:
+      - nextcloud_pgdata:/var/lib/postgresql/data
+
+  # -----------------------------
+  # Nextcloud
+  # -----------------------------
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: always
+    depends_on:
+      - nextcloud-postgres
+      - redis
+    networks:
+      - ai-net
+    ports:
+      - "8181:80"
+    environment:
+      - POSTGRES_HOST=nextcloud-postgres
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=ncuser
+      - POSTGRES_PASSWORD=ncpass
+      - REDIS_HOST=redis
+      - WEBUI_API_ENABLED=true
+      - ENABLE_API_KEYS=true
+      - OPENAI_API_BASE_URL=/v1
+    volumes:
+      - nextcloud_data:/var/www/html
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # -----------------------------
+  # OnlyOffice DocumentServer
+  # -----------------------------
+  documentserver:
+    image: thomisus/onlyoffice-documentserver-unlimited:latest
+    container_name: documentserver
+    restart: always
+    networks:
+      - ai-net
+    ports:
+      - "8383:80"
+    environment:
+      JWT_ENABLED: "true"
+      JWT_SECRET: "my_super_secret_key_123"
+      JWT_HEADER: "Authorization"
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_log:/var/log/onlyoffice
+
+  # -----------------------------
+  # Docker Socket Proxy
+  # -----------------------------
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: docker-socket-proxy
+    restart: always
+    networks:
+      - ai-net
+    expose:
+      - "2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+      - IMAGES=1
+      - NETWORKS=1
+      - VOLUMES=1
+      - POST=1
+      - AUTH=0
+      - PULL=1
+      - EXEC=1
+      - EXEC_START=1
+      - ARCHIVE=1
+
+
+volumes:
+  nextcloud_data:
+  nextcloud_pgdata:
+  onlyoffice_data:
+  onlyoffice_log:
