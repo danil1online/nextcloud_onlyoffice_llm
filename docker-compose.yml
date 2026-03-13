@@ -35,7 +35,7 @@ services:
   # Nextcloud
   # -----------------------------
   nextcloud:
-    image: nextcloud:latest
+    image: nextcloud:33
     container_name: nextcloud
     restart: always
     depends_on:
